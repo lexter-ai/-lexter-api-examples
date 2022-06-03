@@ -1,0 +1,19 @@
+{
+  "name": "lexter-api-examples",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "pulling": "node src/pulling"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dotenv": "^16.0.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.6.2"
+  }
+}
