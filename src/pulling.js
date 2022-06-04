@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const fs = require("node:fs/promises");
 const path = require("path");
 
-const LEXTER_API_DOMAIN = "http://localhost:3000/external/v1";
+const LEXTER_API_DOMAIN = "https://integrations.lexter.ai/external/v1";
 
 async function getLastProjects() {
   //Rota de listagem dos projetos:
@@ -191,6 +191,7 @@ async function pullingExemple() {
   //o serviço soubesse o ID do projeto que ele vai usar, e não procurar esse
   //ID no serviço da Lexter.ai.
   const project = await getLastProjects();
+  const projectId = project.projectId;
 
   //Como primeiro paço vamos fazer o upload de todos os documentos que queremos
   //manda para serem analisados pela Lexter.ai
@@ -198,12 +199,12 @@ async function pullingExemple() {
 
   //Com os documentos na nuvem da Lexter.ai podemos criar o nosso pacote de
   //extração
-  const currentBundleId = await createBundle(project.projectId, documents);
+  const currentBundleId = await createBundle(projectId, documents);
   console.log("New bundle id:", currentBundleId);
 
   //Depois de o nosso bundle ter sido criado vamos começar a checar se ele foi
   //concluído, assim que ele estiver pronto vamos retornar os valores extraídos
-  const results = await pullUntilComplete(project.projectId, currentBundleId);
+  const results = await pullUntilComplete(projectId, currentBundleId);
   console.log("Results are ready:");
   console.log(results);
 }
