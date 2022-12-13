@@ -4,7 +4,8 @@ const axios = require("axios").default;
 const fs = require("node:fs/promises");
 const path = require("path");
 
-const LEXTER_API_DOMAIN = "https://integrations.lexter.ai/external/v1";
+// const LEXTER_API_DOMAIN = "https://integrations.lexter.ai/external/v1";
+const LEXTER_API_DOMAIN = "http://localhost:3000/external/v1";
 
 async function getLastProjects() {
   //Rota de listagem dos projetos:
@@ -18,7 +19,7 @@ async function getLastProjects() {
       },
     });
 
-    //Vamos pegar o primeiro elemento da array, ou seja, o último projeto criado.
+    //Vamos pegar o primeiro elemento da array, ou seja, a última análise criada.
     return response.data[0];
   } catch (e) {
     console.log("error", e);
@@ -89,7 +90,7 @@ async function uploadDocuments() {
 
 async function createBundle(projectId, documents) {
   try {
-    //Rota de criar um bundle:
+    //Rota de criar um envio:
     //https://documenter.getpostman.com/view/12667252/UVsHS7ax#2cdc6cad-211b-4af9-a0a5-8133b64f2a74
     const postBundleUrl = `${LEXTER_API_DOMAIN}/projects/${projectId}`;
     const result = await axios.post(
@@ -106,8 +107,8 @@ async function createBundle(projectId, documents) {
       }
     );
 
-    //A rota retorna um objeto como ID do novo pacote dentro dele, vamos
-    //precisar desse identificador para interagir com o pacote de agora em diante.
+    //A rota retorna um objeto como ID do novo envio dentro dele, vamos
+    //precisar desse identificador para interagir com o envio de agora em diante.
     return result.data.id;
   } catch (e) {
     console.log("Error creating bundle", e);
@@ -159,20 +160,20 @@ async function pullUntilComplete(projectId, bundleId) {
   const oneMinute = 1 * 60 * 1000;
   return new Promise((resolve) => {
     const intervalId = setInterval(async () => {
-      //A cada intervalo vamos pegar os detalhes do pacote atual e verificar
+      //A cada intervalo vamos pegar os detalhes do envio atual e verificar
       //o seu status para saber se podemos pedir os seus resultados ou não.
       const details = await getBundleDetails(projectId, bundleId);
 
       //Nesse exemplo simplificado estamos verificando apenas o caso de sucesso,
       //esperando que a extração seja concluída com sucesso.
       //Em um código de produção seria necessário checar os estados 'ARCHIVED' e
-      //'CANCELED' também. Ambos esses status indicariam que o projeto não vai
-      //ser mais extraído e nós deveríamos para o nosso loop. A diferença
+      //'CANCELED' também. Ambos esses status indicariam que o envio não vai
+      //ser mais extraído e nós deveríamos parar o nosso loop. A diferença
       //dos status de falha é que nós não deveríamos pedir os resultados do
-      //projeto nesses casos.
+      //envio nesses casos.
       if (details.status === "FINISHED") {
         clearInterval(intervalId);
-        //Vamos pegar os resultados do nosso pacote e retorná-los para a nossa
+        //Vamos pegar os resultados do nosso envio e retorná-los para a nossa
         //função principal
         const results = await getBundleResult(projectId, bundleId);
         resolve(results);
@@ -184,25 +185,24 @@ async function pullUntilComplete(projectId, bundleId) {
 }
 
 async function pullingExemple() {
-  //Vamos pegar o último projeto criado para termos o ID do projeto de extração
+  //Vamos pegar a última análise criado para termos o ID da análise de extração
   //que vamos usar.
-  //Lembre-se que esse projeto tem que ser criado na plataforma da Lexter.ai.
+  //Lembre-se que essa análise tem que ser criado na plataforma da Lexter.ai.
   //A função getLastProjects é ilustrativa, uma vez que o uso comum seria que
-  //o serviço soubesse o ID do projeto que ele vai usar, e não procurar esse
+  //o serviço soubesse o ID da análise que ele vai usar, e não procurar esse
   //ID no serviço da Lexter.ai.
   const project = await getLastProjects();
   const projectId = project.projectId;
 
   //Como primeiro paço vamos fazer o upload de todos os documentos que queremos
-  //manda para serem analisados pela Lexter.ai
+  //mandar para serem analisados pela Lexter.ai
   const documents = await uploadDocuments();
 
-  //Com os documentos na nuvem da Lexter.ai podemos criar o nosso pacote de
-  //extração
+  //Com os documentos na nuvem da Lexter.ai podemos criar o nosso envio
   const currentBundleId = await createBundle(projectId, documents);
   console.log("New bundle id:", currentBundleId);
 
-  //Depois de o nosso bundle ter sido criado vamos começar a checar se ele foi
+  //Depois de o nosso envio ter sido criado vamos começar a checar se ele foi
   //concluído, assim que ele estiver pronto vamos retornar os valores extraídos
   const results = await pullUntilComplete(projectId, currentBundleId);
   console.log("Results are ready:");

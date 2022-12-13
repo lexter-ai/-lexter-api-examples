@@ -29,7 +29,7 @@ como variáveis de ambiente.
 ## Exemplo de pulling
 
 Ao rodar o `npm run pulling` você estará iniciando o executável que vai criar um
-novo bundle e depois vai ler o status desse bundle a cada 1min e logar os
-resultados quando este bundle for concluído.
+novo envio e depois vai ler o status desse envio a cada 1min e logar os
+resultados quando este envio for concluído.
 
 Veja o arquivo `./src/pulling.js` para explicações de como esse código funciona.
