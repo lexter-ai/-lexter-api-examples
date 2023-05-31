@@ -4,8 +4,7 @@ const axios = require("axios").default;
 const fs = require("node:fs/promises");
 const path = require("path");
 
-// const LEXTER_API_DOMAIN = "https://integrations.lexter.ai/external/v1";
-const LEXTER_API_DOMAIN = "http://localhost:3000/external/v1";
+const LEXTER_API_DOMAIN = "https://integrations.lexter.ai/external/v1";
 
 async function getLastProjects() {
   //Rota de listagem dos projetos:
